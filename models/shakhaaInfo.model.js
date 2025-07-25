@@ -2,6 +2,9 @@ const mongoose = require("mongoose");
 
 // shakhaaInfo schema ---
 const shakhaaInfoSchema = new mongoose.Schema({
+    vibhaag:{
+       type:String,
+    },
    jila:{
      type:String,
    },
@@ -15,17 +18,17 @@ const shakhaaInfoSchema = new mongoose.Schema({
     type:String,
    },
    adminName:{
-    type:String,
-   },
-   contactNumber:{
-    type:Number,
-   },
-   address:{
-      type:String,
-   },
+            type:[String],
+        },
+    contactNumber:{
+            type:[Number],
+        },
+    address:{
+            type:[String]
+        },
    role:{
-      type:String,
-   },
+            type:[String]
+        },
 })
 
 const Shakhaa = mongoose.model("Shakhaa",shakhaaInfoSchema);

@@ -9,7 +9,7 @@ module.exports. saveShakhaaInfo = async(req,res)=>{
            return res.status(400).json({message:" Can not create Shakhaa !You are not Admin !",success:false})
         }
 
-        let {jila,nagar,basti,shakhaaName,adminName,address,contactNumber,role} = req.body;  
+        let {vibhaag,jila,nagar,basti,shakhaaName,adminName,address,contactNumber,role} = req.body;  
     // checking previous shakhaa --
         let previousInfo = await Shakhaa.findOne({shakhaaName});
         if(previousInfo){
@@ -21,6 +21,7 @@ module.exports. saveShakhaaInfo = async(req,res)=>{
         }
     // saving shakhaa in db--
        let newShakhaa = await new Shakhaa({
+          vibhaag:vibhaag,
           jila:jila,
           nagar:nagar,
           basti:basti,
@@ -47,12 +48,12 @@ module.exports.saveShakhaaImages = async(req,res)=>{
            return res.status(400).json({message:" Can not create Shakhaa !You are not Admin !",success:false})
         }
 
-        let{url} = req.body;
+        let{url,date} = req.body;
         if(!url){
          return res.status(500).json({message:"Please Select Picture !",success:false})
         }
         const saveImage = await new Image({
-         url:url,
+         url:url,date:Date.now(),
         });
        
         await saveImage.save();
@@ -82,7 +83,7 @@ module.exports.allShakhaaInfo = async(req,res)=>{
   
 }
 
-// show individual shakhaa info --
+// show individual shakhaa info by id----
 module.exports.findOneShakhaa = async(req,res) =>{
    try{
          // checking admin
@@ -98,6 +99,29 @@ module.exports.findOneShakhaa = async(req,res) =>{
         res.status(500).json({message:"Server Error !",success:false});
    }
 }
+// found shakhaa by name---
+module.exports.findShakhaaByName = async (req, res) => {
+  try {
+    const { name } = req.params;
+
+    // Admin check (optional if you want only admins to search)
+    if (req.user.role !== "admin") {
+      return res.status(400).json({ message: "Not authorized!", success: false });
+    }
+
+    const foundedShakhaa = await Shakhaa.find({ shakhaaName: { $regex: name, $options: "i" } });
+
+    if (foundedShakhaa.length === 0) {
+      return res.status(404).json({ message: "No shakhaa found!", success: false });
+    }
+
+    res.status(200).json({ message: "Shakhaa found!", success: true, foundedShakhaa });
+  } catch (err) {
+    console.error("Error during shakhaa search:", err);
+    res.status(500).json({ message: "Server Error!", success: false });
+  }
+};
+
 // show images--
 module.exports.allShakhaaImages = async(req,res) =>{
    try{
@@ -158,36 +182,56 @@ module.exports.deleteShakhaaImage = async(req,res) =>{
 }
 
 // edit shakhaa---
-module.exports.editShakhaa = async(req,res) =>{
-   try{
+module.exports.editShakhaa = async (req, res) => {
+  try {
+    // checking admin
+    if (req.user.role !== "admin") {
+      return res.status(400).json({
+        message: "You can not edit Shakhaa!",
+        access: false
+      });
+    }
 
-         // checking admin
-        if(req.user.role !== "admin"){
-           return res.status(400).json({message:"You can not delete Shakhaa ! ",access:false})
-        }
+    let { id } = req.params;
+    let { input } = req.body;
 
-        let{id} = req.params;
-        let{input} = req.body;
-        let updateShakhaa = await Shakhaa.findByIdAndUpdate(id,{
-         jila:input.jila,
-        nagar:input.nagar,
-        basti:input.basti,
-        shakhaaName:input.shakhaaName,
-        adminName:input.adminName,
-        contactNumber:input.contactNumber,
-        address:input.address,
-        role:input.role,
-        },
-          { new: true } // important: returns updated doc
-      );
-        console.log("updated shakhaa : ",updateShakhaa);
-        if (!updateShakhaa) {
-            return res.status(404).json({ message: "Shakhaa not found", success: false });
-        }
-        res.status(200).json({message:"Shakhaa Updated SuccessFully...",success:true});
-        
-   } catch(err){
-      console.log("error occur during update shakhaa .....",err);
-      res.status(500).json({message:"Server Error !"});
-   }
-}
+    // Check for shakhaaName
+    if (!input.shakhaaName || input.shakhaaName.trim() === "") {
+      return res.status(400).json({
+        message: "Please Fill ShakhaaName !",
+        success: false
+      });
+    }
+
+    let updateShakhaa = await Shakhaa.findByIdAndUpdate(
+      id,
+      {
+        vibhaag: input.vibhaag,
+        jila: input.jila,
+        nagar: input.nagar,
+        basti: input.basti,
+        shakhaaName: input.shakhaaName,
+        adminName: input.adminName,
+        contactNumber: input.contactNumber,
+        address: input.address,
+        role: input.role,
+      },
+      { new: true } // returns updated doc
+    );
+
+    if (!updateShakhaa) {
+      return res.status(404).json({ message: "Shakhaa not found", success: false });
+    }
+
+    res.status(200).json({
+      message: "Shakhaa Updated Successfully...",
+      success: true
+    });
+
+  } catch (err) {
+    console.log("Error during update shakhaa:", err);
+    res.status(500).json({ message: "Server Error !" });
+  }
+};
+
+// found individual shakhaa----

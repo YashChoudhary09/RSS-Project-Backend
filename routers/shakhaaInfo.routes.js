@@ -12,6 +12,6 @@ router.get("/allshakhaaImages",varifyAdmin.varifyToken,shakhaacontroller.allShak
 router.delete("/deleteShakhaa/images/:id",varifyAdmin.varifyToken,shakhaacontroller.deleteShakhaaImage)
 router.put("/updateShakhaa/:id",varifyAdmin.varifyToken,shakhaacontroller.editShakhaa)
 router.get("/findOneShakhaa/:id",varifyAdmin.varifyToken,shakhaacontroller.findOneShakhaa);
-
+router.get("/findShakhaa/:name",varifyAdmin.varifyToken,shakhaacontroller.findShakhaaByName);
 
 module.exports = router;

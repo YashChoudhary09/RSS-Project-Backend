@@ -8,6 +8,7 @@ router.post("/task",varifyAdmin.varifyToken,taskRoute.taskHandle);
 router.get("/allTask",varifyAdmin.varifyToken,taskRoute.showAllTasks);
 router.delete("/deleteTask/:id",varifyAdmin.varifyToken,taskRoute.deleteTask);
 router.get("/findOneTask/:id",varifyAdmin.varifyToken,taskRoute.findOneTask);
+router.get("/findTask",varifyAdmin.varifyToken,taskRoute.findTask);
 router.put("/editTask/:id",varifyAdmin.varifyToken,taskRoute.editTask);
 
 
